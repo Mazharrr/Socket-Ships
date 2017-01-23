@@ -22,3 +22,12 @@ h1 {
   color: white;
   font-size: 50px;
 }
+
+#name{
+  text-align: center;
+  color: white;
+    position: fixed;
+    bottom: 0;
+    width: 40%;
+
+}

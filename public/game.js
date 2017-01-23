@@ -22,7 +22,6 @@ class Bullet {
 
 }
 }
-
 class Chest {
   constructor(game, chest){
   this.game = game;
@@ -56,7 +55,8 @@ class Player {
         this.exp= 0;
         this.health= 100;
         this.direction = "Left";
-        this.id = socket.io.engine.id;
+        // this.id = socket.io.engine.id;
+        this.id = name;
         this.speed_base = 200;
         this.speed = this.speed_base
         this.x = this.game.world.randomX;
@@ -176,14 +176,14 @@ class Player {
         // console.log(sortedPlayers)
         game.debug.text('===Leader Board===', 950, 60)
         if(sortedPlayers[0])
-        game.debug.text('1.' + sortedPlayers[0].name + '  Exp: ' + sortedPlayers[0].exp, 900, 80)
-        else game.debug.text('1. -----'  , 900, 80)
+        game.debug.text('1.' + sortedPlayers[0].name + '  Exp: ' + sortedPlayers[0].exp, 950, 80)
+        else game.debug.text('1. -----'  , 950, 80)
         if(sortedPlayers[1])
-        game.debug.text('2.' + sortedPlayers[1].name  + '  Exp: ' + sortedPlayers[1].exp, 900, 100)
-        else game.debug.text('2. -----'  , 900, 100)
+        game.debug.text('2.' + sortedPlayers[1].name  + '  Exp: ' + sortedPlayers[1].exp, 925, 100)
+        else game.debug.text('2. -----'  , 950, 100)
         if(sortedPlayers[2])
-        game.debug.text('3.' + sortedPlayers[2].name  + '  Exp: ' + sortedPlayers[2].exp, 900, 120)
-        else game.debug.text('3. -----'  , 900, 120)
+        game.debug.text('3.' + sortedPlayers[2].name  + '  Exp: ' + sortedPlayers[2].exp, 925, 120)
+        else game.debug.text('3. -----'  , 950, 120)
 
 
         game.debug.text('You: '+ this.id, 32,  60)
