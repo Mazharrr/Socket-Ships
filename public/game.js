@@ -150,7 +150,7 @@ class Player {
         this.healthBar.setPosition(this.sprite.x+10 , this.sprite.y-100  )
         if(this.fireRate > 200) this.fireRate = 500- this.sprite.exp/2;
         this.sprite.speedEnhance = Math.floor(this.sprite.exp/100)*100
-        this.sprite.speed = this.sprite.speed_base + this.sprite.speedEnhance
+        if(this.sprite.speed <1500)this.sprite.speed = this.sprite.speed_base + this.sprite.speedEnhance
         let playerCount =  Object.keys(players).length+1
 
         let sortedPlayers=  []
@@ -198,6 +198,7 @@ class Player {
 
 class Enemy {
     constructor(game, enemy) {
+        this.healthBar = new HealthBar(game, {x: 200, y: 200, width: 120, isFixedToCamera: false, height: 20 });
         this.game = game;
         this.enemy = enemy;
         this.addSprite();
@@ -206,6 +207,7 @@ class Enemy {
     addSprite(){
         this.replacementString = "otherShip" +this.enemy.direction
         this.sprite = this.game.add.sprite(this.enemy.x, this.enemy.y, this.replacementString);
+        this.sprite.health = this.enemy.health
         this.game.physics.p2.enable(this.sprite, false);
         this.sprite.body.setZeroDamping();
         this.sprite.body.fixedRotation = true;
@@ -327,7 +329,10 @@ function setEventHandlers(game){
         {
         bullets.children[bullet.bulletHit].destroy()
         if(this.player.id === shooter) this.player.sprite.exp +=10
-        if(this.player.id === bullet.shipName) this.player.sprite.health -=10
+        if(this.player.id === bullet.shipName) {
+          this.player.health -=10
+          this.player.sprite.health -=10
+        }
       }
       })
 
@@ -351,6 +356,7 @@ function setEventHandlers(game){
 
       this.socket.on('logout', (id) => {
           this.players[id].sprite.kill();
+          this.players[id].healthBar.kill();
           delete this.players[id];
       });
   });
@@ -407,6 +413,9 @@ function update(){
   if(Object.keys(players.length)){
     for(var i in players)
     {
+      // console.log(players[i].sprite.health)
+      players[i].healthBar.setPercent(players[i].sprite.health)
+      players[i].healthBar.setPosition(players[i].sprite.x+10 , players[i].sprite.y-100  )
       bulletHit = null
       bulletHit = checkOverlap(bullets,players[i].sprite)
       // console.log(players)
