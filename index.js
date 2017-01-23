@@ -75,7 +75,6 @@ io.on('connection', function(socket){
         y: temp2,
         id: data.data
       };
-      console.log( chests[data.data])
       io.emit('claim_Chest', {chest: chests[data.data], id: data.id});
   });
 

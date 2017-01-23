@@ -1,7 +1,3 @@
-
-
-var gameWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
-var gameHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
 var players= [];
 var bullets = [];
 var Chests = []
@@ -77,8 +73,6 @@ class Player {
         this.sprite.body.setZeroDamping();
         this.sprite.body.fixedRotation = true;
         this.sprite.body.collideWorldBounds = true;
-
-
         this.sprite.id = this.id;
         this.sprite.health = this.health;
         this.sprite.color = this.color;
@@ -163,7 +157,41 @@ class Player {
         this.sprite.speedEnhance = Math.floor(this.sprite.exp/100)*100
         this.sprite.speed = this.sprite.speed_base + this.sprite.speedEnhance
         let playerCount =  Object.keys(players).length+1
+
+        let sortedPlayers=  []
+        let index =0
+        for(var i in players)
+        {
+          sortedPlayers[index] = {exp: players[i].sprite.exp, name: players[i].enemy.id}
+          index++
+          }
+          sortedPlayers.push({exp: this.sprite.exp, name: this.id})
+        sortedPlayers.sort(function(a,b){
+          return b.exp - a.exp
+        })
+
+
+
+
+
+
+
         game.camera.focusOnXY(this.sprite.body.x, this.sprite.body.y)
+
+        // console.log(sortedPlayers)
+        game.debug.text('===Leader Board===', 950, 60)
+        if(sortedPlayers[0])
+        game.debug.text('1.' + sortedPlayers[0].name + '  Exp: ' + sortedPlayers[0].exp, 900, 80)
+        else game.debug.text('1. -----'  , 900, 80)
+        if(sortedPlayers[1])
+        game.debug.text('2.' + sortedPlayers[1].name  + '  Exp: ' + sortedPlayers[1].exp, 900, 100)
+        else game.debug.text('2. -----'  , 900, 100)
+        if(sortedPlayers[2])
+        game.debug.text('3.' + sortedPlayers[2].name  + '  Exp: ' + sortedPlayers[2].exp, 900, 120)
+        else game.debug.text('3. -----'  , 900, 120)
+
+
+        game.debug.text('You: '+ this.id, 32,  60)
         game.debug.text('Players: ' + playerCount, 32, 80)
         game.debug.text('Fire Rate: ' + this.fireRate + 'ms', 32, 100);
         game.debug.text('Speed: ' + this.sprite.speed, 32, 120);
@@ -185,8 +213,6 @@ class Enemy {
         this.sprite = this.game.add.sprite(this.enemy.x, this.enemy.y, this.replacementString);
         this.game.physics.p2.enable(this.sprite, false);
         this.sprite.body.setZeroDamping();
-
-        // this.setColision();
         this.sprite.body.fixedRotation = true;
         this.sprite.body.immovable = false;
         this.sprite.body.collideWorldBounds = true;
@@ -226,6 +252,8 @@ function preload () {
   game.load.image('bullet', './assets/real/bullet.png')
 
   game.load.image('chest', './assets/real/chest.png');
+
+
   game.time.advancedTiming = true;
 
 }
@@ -252,6 +280,7 @@ function create(){
   bullets.setAll('anchor.y', 0.5);
   bullets.setAll('outOfBoundsKill', true);
   bullets.setAll('checkWorldBounds', true);
+
 
 
   setEventHandlers(game);
@@ -300,7 +329,7 @@ function setEventHandlers(game){
       this.socket.on('hit', (bullet)=>{
         let shooter = bullets.children[bullet.bulletHit].playerId
         if(shooter)
-        {console.log(shooter, ' just hit ' ,bullet.shipName)
+        {
         bullets.children[bullet.bulletHit].destroy()
         if(this.player.id === shooter) this.player.sprite.exp +=10
         if(this.player.id === bullet.shipName) this.player.sprite.health -=10
@@ -385,6 +414,7 @@ function update(){
     {
       bulletHit = null
       bulletHit = checkOverlap(bullets,players[i].sprite)
+      // console.log(players)
       if(bulletHit){
         socket.emit('hit', {bulletHit, shipName: players[i].sprite.id})
         break;
