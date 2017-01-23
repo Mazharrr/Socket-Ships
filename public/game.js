@@ -179,10 +179,10 @@ class Player {
         game.debug.text('1.' + sortedPlayers[0].name + '  Exp: ' + sortedPlayers[0].exp, 950, 80)
         else game.debug.text('1. -----'  , 950, 80)
         if(sortedPlayers[1])
-        game.debug.text('2.' + sortedPlayers[1].name  + '  Exp: ' + sortedPlayers[1].exp, 925, 100)
+        game.debug.text('2.' + sortedPlayers[1].name  + '  Exp: ' + sortedPlayers[1].exp, 950, 100)
         else game.debug.text('2. -----'  , 950, 100)
         if(sortedPlayers[2])
-        game.debug.text('3.' + sortedPlayers[2].name  + '  Exp: ' + sortedPlayers[2].exp, 925, 120)
+        game.debug.text('3.' + sortedPlayers[2].name  + '  Exp: ' + sortedPlayers[2].exp, 950, 120)
         else game.debug.text('3. -----'  , 950, 120)
 
 
