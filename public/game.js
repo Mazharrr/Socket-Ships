@@ -112,28 +112,23 @@ class Player {
       if (cursors.left.isDown || wasd.left.isDown)
       {
           this.direction = "Left"
-          // console.log('moving left')
           this.sprite.loadTexture('myShipLeft')
           this.sprite.body.moveLeft(this.sprite.speed);
       }
       if (cursors.right.isDown || wasd.right.isDown)
       {
-          this.direction = "Right"
-          // console.log('moving right')
           this.sprite.loadTexture('myShipRight')
           this.sprite.body.moveRight(this.sprite.speed);
       }
       if (cursors.up.isDown || wasd.up.isDown)
       {
           this.direction = "Up"
-          // console.log('moving up')
           this.sprite.loadTexture('myShipUp')
           this.sprite.body.moveUp(this.sprite.speed);
       }
       if (cursors.down.isDown || wasd.down.isDown)
       {
           this.direction = "Down"
-          // console.log('moving down')
           this.sprite.loadTexture('myShipDown')
           this.sprite.body.moveDown(this.sprite.speed);
       }
@@ -316,7 +311,7 @@ function setEventHandlers(game){
 
       this.socket.on('new_player', (enemy) => {
           this.players[enemy.id] = new Enemy(game, enemy, this.groupColision);
-          console.log(this.players)
+          // console.log(this.players)
       });
 
       this.socket.on('fire', (data)=>{
@@ -402,7 +397,7 @@ function update(){
           chestHit = null
           chestHit = checkChestOverlap(Chests, player.sprite)
           if(chestHit || chestHit ===0){
-            console.log(chestHit)
+            // console.log(chestHit)
             socket.emit('claim_Chest', {data: chestHit, id: player.id})
             refreshTimeChest= game.time.now+100
           }
