@@ -23,7 +23,7 @@ const io = socketio(server);
 
 
 
-  server.listen(1337, function () {
+  server.listen( process.env.PORT || 1337, function () {
       console.log('The server is listening on port 1337!');
   });
 
