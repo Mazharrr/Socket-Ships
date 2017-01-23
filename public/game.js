@@ -4,6 +4,7 @@ var gameWidth = window.innerWidth || document.documentElement.clientWidth || doc
 var gameHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
 var players= [];
 var bullets = [];
+var Chests = []
 var socket;
 var player
 
@@ -23,14 +24,30 @@ class Bullet {
           bullet.playerId= id
           game.physics.arcade.moveToXY(bullet, mouseX, mouseY, 600);
 
-
-
-
+}
 }
 
-  update(){
-
+class Chest {
+  constructor(game, chest){
+  this.game = game;
+  this.chest = chest;
+  this.addSprite();
   }
+
+  addSprite(){
+    this.sprite = this.game.add.sprite(this.chest.x, this.chest.y, 'chest')
+    // this.game.physics.p2.enable(this.sprite, false);
+    this.sprite.body= null
+    this.sprite.id = this.chest.id;
+  }
+
+  move(chest){
+    if(this.sprite.alive){
+        this.sprite.kill();
+    }
+    this.chest = chest;
+    this.addSprite();
+}
 
 
 }
@@ -94,7 +111,10 @@ class Player {
             left: game.input.keyboard.addKey(Phaser.Keyboard.A),
             right: game.input.keyboard.addKey(Phaser.Keyboard.D),
           };
+
       let space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+
       if (cursors.left.isDown || wasd.left.isDown)
       {
           this.direction = "Left"
@@ -147,11 +167,9 @@ class Player {
         game.debug.text('Players: ' + playerCount, 32, 80)
         game.debug.text('Fire Rate: ' + this.fireRate + 'ms', 32, 100);
         game.debug.text('Speed: ' + this.sprite.speed, 32, 120);
-        game.debug.text(this.sprite.exp + " XP", this.sprite.x - game.camera.x - 15, this.sprite.y - game.camera.y+ 5);
-        // game.debug.text(this.sprite.health + " HP", this.sprite.x - game.camera.x - 15, this.sprite.y - game.camera.y-10);
-        // game.physics.arcade.moveToPointer(this.sprite, this.speed);
-
+        game.debug.text(this.sprite.exp + " EXP", this.sprite.x - game.camera.x - 15, this.sprite.y - game.camera.y+ 5);
         this.socket.emit('move_player', this.toJson());
+
     }
 }
 
@@ -215,14 +233,14 @@ function preload () {
 function create(){
   socket = io.connect(window.location.host);
   players =[];
+  Chests = [];
 
   game.physics.startSystem(Phaser.Physics.P2JS);
-  // game.physics.p2.setImpactEvents(true);
   game.physics.p2.restitution = 0.8;
 
   game.world.setBounds(-1000,-1000,2000,2000)
   background = game.add.tileSprite(-1000,-1000,2000,2000, 'background')
-
+ game.stage.disableVisibilityChange = true;
 
 
 
@@ -243,11 +261,30 @@ function setEventHandlers(game){
   this.socket.on('connect', () => {
       this.player = new Player(game, socket);
       player = this.player
-      console.log(this.player)
       this.socket.emit('new_player', this.player.toJson());
 
+      this.socket.on('getChests', (chests) => {
+              for (var chest of chests) {
 
-      // new player
+                  Chests[chest.id] = new Chest(game, chest);
+              }
+      });
+
+      this.socket.on('claim_Chest', (data)=>{
+        Chests[data.chest.id].sprite.destroy()
+        Chests[data.chest.id]= null
+        Chests[data.chest.id]= new Chest(game, data.chest)
+        if(this.player.id === data.id ) {
+          if(this.player.sprite.health > 50)
+          this.player.sprite.health = 100
+          else{
+            this.player.sprite.health +=50
+          }
+          this.player.sprite.exp +=20
+        }
+
+      })
+
       this.socket.on('new_player', (enemy) => {
           this.players[enemy.id] = new Enemy(game, enemy, this.groupColision);
           console.log(this.players)
@@ -266,7 +303,6 @@ function setEventHandlers(game){
         {console.log(shooter, ' just hit ' ,bullet.shipName)
         bullets.children[bullet.bulletHit].destroy()
         if(this.player.id === shooter) this.player.sprite.exp +=10
-        // console.log('this is the player hitting', this.player)
         if(this.player.id === bullet.shipName) this.player.sprite.health -=10
       }
       })
@@ -313,17 +349,36 @@ function checkOverlap(bullets, ship){
   return false
 }
 
+function checkChestOverlap(chests, ship){
+  let shipBounds = ship.getBounds()
+  let shipName = ship.id
+  let chest = null;
+  for(var z = 0;z< Chests.length; z++){
+    if(Chests[z]){
+      chest = Chests[z].sprite.getBounds()
+
+    }
+    if( chest && Phaser.Rectangle.intersects(shipBounds, chest)) return z
+  }
+}
+
+let chestHit
+let refreshTimeChest = 0
 function update(){
   game.stage.disableVisibilityChange = true;
-  // console.log(player)
   if (player) {
           player.update(game);
-          // console.log(players)
-          // game.physics.arcade.overlap(bullets, players[] )
 
+          if(game.time.now > refreshTimeChest){
+          chestHit = null
+          chestHit = checkChestOverlap(Chests, player.sprite)
+          if(chestHit || chestHit ===0){
+            console.log(chestHit)
+            socket.emit('claim_Chest', {data: chestHit, id: player.id})
+            refreshTimeChest= game.time.now+100
+          }
       }
 
-  //     game.physics.arcade.overlap(bullets, player, Bullet.hitMe, null, this)
   let bulletHit
   if(Object.keys(players.length)){
     for(var i in players)
@@ -335,20 +390,12 @@ function update(){
         break;
         }
 
+      }
 
-
-
-
-  //     // console.log(players[i].sprite)
-  //   game.physics.arcade.overlap(bullets, players[i].sprite, gotHit, null, this)
-  }
-  //
+      }
   }
 
-      // game.debug.cameraInfo(game.camera, 32, 32);
       game.debug.text('fps: '+ game.time.fps || '--', 32, 140);
-}
 
-function gotHit(){
-  console.log('outer hit function')
+
 }

@@ -31,12 +31,30 @@ const io = socketio(server);
 
 var users = [];
 var bullets = [];
+var startingChests = 3;
+var chests = [];
+
+
+
+for(let x = 0; x< startingChests; x++){
+  var num1 = Math.floor(Math.random()* 950) +1
+  num1*= Math.floor(Math.random()*2)==1 ? 1 : -1
+  var num2 = Math.floor(Math.random()* 950) +1
+  num2*= Math.floor(Math.random()*2)==1 ? 1 : -1
+  chests[x]= {
+  x: num1,
+  y: num2,
+  id: x
+}
+}
+
 
 io.on('connection', function(socket){
     var me = false;
 
     socket.on('new_player', function(user){
         me = user;
+        socket.emit('getChests', chests)
 
         for (var k in users){
             socket.emit('new_player', users[k]);
@@ -45,6 +63,21 @@ io.on('connection', function(socket){
         users[me.id] = me;
         socket.broadcast.emit('new_player', user);
     });
+
+    socket.on('claim_Chest', function(data){
+
+      var temp1 = Math.floor(Math.random()* 950) +1
+      temp1*= Math.floor(Math.random()*2)==1 ? 1 : -1
+      var temp2 = Math.floor(Math.random()* 950) +1
+      temp2*= Math.floor(Math.random()*2)==1 ? 1 : -1
+      chests[data.data] = {
+        x: temp1,
+        y: temp2,
+        id: data.data
+      };
+      console.log( chests[data.data])
+      io.emit('claim_Chest', {chest: chests[data.data], id: data.id});
+  });
 
 
     socket.on('move_player', function(user){
@@ -75,8 +108,3 @@ io.on('connection', function(socket){
     });
 
 });
-
-
-// function randomIntInc (low, high) {
-//     return Math.floor(Math.random() * (high - low + 1) + low);
-// }
