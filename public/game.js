@@ -37,6 +37,7 @@ class Bullet {
 
 class Player {
     constructor(game, socket) {
+        this.healthBar = new HealthBar(game, {x: 200, y: 200, width: 120, isFixedToCamera: false, height: 20 });
         this.game = game;
         this.socket = socket;
         this.exp= 0;
@@ -136,6 +137,8 @@ class Player {
         if(this.sprite.health <= 0 ){
           this.socket.emit('kill_player', this.id)
         }
+        this.healthBar.setPercent(this.sprite.health);
+        this.healthBar.setPosition(this.sprite.x+10 , this.sprite.y-100  )
         if(this.fireRate > 200) this.fireRate = 500- this.sprite.exp/2;
         this.sprite.speedEnhance = Math.floor(this.sprite.exp/100)*100
         this.sprite.speed = this.sprite.speed_base + this.sprite.speedEnhance
@@ -144,8 +147,8 @@ class Player {
         game.debug.text('Players: ' + playerCount, 32, 80)
         game.debug.text('Fire Rate: ' + this.fireRate + 'ms', 32, 100);
         game.debug.text('Speed: ' + this.sprite.speed, 32, 120);
-        game.debug.text(this.sprite.exp + " XP", this.sprite.x - game.camera.x - 10, this.sprite.y - game.camera.y+ 5);
-        game.debug.text(this.sprite.health + " HP", this.sprite.x - game.camera.x - 15, this.sprite.y - game.camera.y-10);
+        game.debug.text(this.sprite.exp + " XP", this.sprite.x - game.camera.x - 15, this.sprite.y - game.camera.y+ 5);
+        // game.debug.text(this.sprite.health + " HP", this.sprite.x - game.camera.x - 15, this.sprite.y - game.camera.y-10);
         // game.physics.arcade.moveToPointer(this.sprite, this.speed);
 
         this.socket.emit('move_player', this.toJson());
