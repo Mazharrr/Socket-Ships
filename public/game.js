@@ -54,7 +54,6 @@ class Player {
     this.exp = 0;
     this.health = 100;
     this.direction = "Left";
-    // this.id = socket.io.engine.id;
     this.id = name;
     this.speed_base = 200;
     this.speed = this.speed_base;
@@ -62,8 +61,9 @@ class Player {
     this.y = this.game.world.randomY;
     this.fireRate = 500;
     this.nextFire = 0;
-
-    this.addSprite();
+    if (this.name) {
+      this.addSprite();
+    }
   }
 
   addSprite() {
