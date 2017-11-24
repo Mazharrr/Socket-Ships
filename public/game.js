@@ -61,9 +61,8 @@ class Player {
     this.y = this.game.world.randomY;
     this.fireRate = 500;
     this.nextFire = 0;
-    if (this.name) {
-      this.addSprite();
-    }
+
+    this.addSprite();
   }
 
   addSprite() {
